@@ -1,0 +1,32 @@
+---
+title: "Project proposal"
+author: "Leonardo Capitani and Francesco Pomati"
+format: html
+editor: visual
+---
+
+## Title 
+
+Inferring and predicting plankton interaction networks in changing lakes
+
+Response of plankton community structure in lakes to future climate change: partitioning the effects of nutrients , temperature
+
+Interaction between temperature and nutrients : How does the plankton community cope with climate change?
+
+Future plankton interactions in changing lakes
+
+## Summary
+
+## Project team 
+
+-   Princial Investigator: Francesco Pomati, Swiss Federal Institute of Aquatic Science and Technology (Eawag), Switzerland
+
+-   Postdoc researcher: Leonardo Capitani, Swiss Federal Institute of Aquatic Science and Technology (Eawag), Switzerland.
+
+-   Research Assistant: Stefanie Merkli, Swiss Federal Institute of Aquatic Science and Technology (Eawag), Switzerland
+
+-   
+
+## Collaborators
+
+### some nice high resolution 
