@@ -1,0 +1,252 @@
+---
+title: "Simulate"
+author: "Leonardo Capitani"
+date: "09/01/2025"
+date-modified: last-modified
+execute:
+  echo: true
+  warning: false
+  message: false
+format: 
+      html:
+          toc: true
+          code-fold: true
+          code-tools: true
+          code-link: true
+          embed-resources: true
+      pdf:
+             keep-tex: true
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## Load libraries
+
+```{r load_packages}
+library(here)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(patchwork)
+library(GPEDM)
+set.seed(123)
+```
+
+GGplot theme
+
+```{r ggplot_theme}
+newtheme <- theme_bw(base_size = 14) 
+theme_set(newtheme)
+```
+
+## Simulate abiotic drivers
+
+```{r}
+# ---- 1. Simulate drivers ----
+n <- 200
+Time <- 1:n
+# we assume no causal link from Temp to Nutrients 
+temperature <- sin(2*pi*Time/50) + rnorm(n, 0, 0.3)   # seasonal + noise
+phosphorus  <- sin(2*pi*Time/70 + 1) + rnorm(n, 0, 0.4)
+nitrogen    <- sin(2*pi*Time/90 + 2) + rnorm(n, 0, 0.4)
+```
+
+```{r}
+# ---- 2. Simulate emergent properties (hypotheses) ----
+connectance <- 0.6*temperature + 0.3*nitrogen - 0.2*phosphorus +
+               0.2*temperature*nitrogen + rnorm(n,0,0.2)
+
+modularity  <- 0.5*phosphorus - 0.3*temperature + 
+               0.1*nitrogen*phosphorus + rnorm(n,0,0.2)
+
+stability   <- -0.6*temperature - 0.5*phosphorus - 0.4*nitrogen +
+               0.3*temperature*phosphorus + rnorm(n,0,0.2)
+
+df <- data.frame(Time, temperature, phosphorus, nitrogen,
+                 connectance, modularity, stability)
+
+```
+
+Add quagga mussel abundance
+
+```{r}
+
+# ---- Quagga mussel abundance ----
+quagga <- rep(NA,n) # NA observation before time 100
+quagga[Time > 100] <- runif(sum(Time > 100), 20, 200)  # random after 100
+
+# Standardize (z-score)
+quagga_std <- scale(quagga)
+
+df <- df %>% mutate(quagga = as.numeric(quagga_std))
+# ---- Reshape emergent properties for plotting ----
+df_long <- df %>%
+  pivot_longer(cols = c(connectance, modularity, stability),
+               names_to = "property", values_to = "value")
+
+```
+
+### Visualize data 
+
+```{r plot_emergent_properties}
+
+
+# ---- Plot with facet wrap ----
+p <- ggplot(df_long, aes(x = Time)) +
+  geom_line(aes(y = value, color = property), size = 1) +
+  geom_col(data = df, aes(y = quagga, x = Time), 
+           fill = "grey40", alpha = 0.4, inherit.aes = FALSE) +
+  facet_wrap(~property, scales = "free_y", ncol = 1) +
+  scale_y_continuous(
+    name = "Plankton network emergent property (standardized)",
+    sec.axis = sec_axis(~., name = "Quagga abundance (standardized)")
+  ) +
+  theme(legend.position = "none")
+
+p
+# save as PNG
+ggsave(here("results","figures","simulations","emergent_properties.png"), plot = p, width = 8, height = 6, dpi = 300)
+```
+
+## Load lake Zurich data
+
+```{r load_p}
+p <- read.csv( here("Data","Merz","lake_zurich.csv")) |>   mutate(X = row_number())
+
+# change species names
+names(p)[names(p) == "Ci"] <- "Ciliates"
+names(p)[names(p) == "Cr1"] <- "Cryptophytes (small)"
+names(p)[names(p) == "Cr2"] <- "Cryptophytes (large)"
+names(p)[names(p) == "Cy"] <- "Cyanobacteria"
+names(p)[names(p) == "Di1"] <- "Diatoms (small)"
+names(p)[names(p) == "Di2"] <- "Diatoms (large)"
+names(p)[names(p) == "Go1"] <- "Gold algae (small)"
+names(p)[names(p) == "Go2"] <- "Gold algae (large)"
+names(p)[names(p) == "Gr1"] <- "Green algae (small)"
+names(p)[names(p) == "Gr2"] <- "Green algae (large)"
+names(p)[names(p) == "He"] <- "Large herbivores"
+names(p)[names(p) == "Mi"] <- "Mixotrophic flagellates"
+names(p)[names(p) == "Om"] <- "Omnivores"
+names(p)[names(p) == "Pr"] <- "Invertebrate predators"
+names(p)[names(p) == "Ro"] <- "Herbivore rotifers"
+names(p)[names(p) == "temperature"] <- "Temperature"
+names(p)[names(p) == "phosphorus"] <- "Phosphate"
+
+
+```
+
+### Visualize data
+
+```{r plot_zurich_p, fig.width=12, fig.height=8}
+
+# Separate abiotic and biotic variables
+abiotic_vars <- c("Temperature", "Phosphate")
+
+biotic_vars <- setdiff(names(p), c("X", "year", "month", "month_year", "quarter_year", abiotic_vars))
+
+# Helper function to prepare p with stats
+prepare_p <- function(df, vars) {
+  df_long <- df %>%
+    select(X, year, all_of(vars)) %>%
+    pivot_longer(-c(X, year), names_to = "variable", values_to = "value")
+  
+  stats <- df_long %>%
+    group_by(variable) %>%
+    summarise(
+      n_NA = sum(is.na(value)),
+      n_obs = sum(!is.na(value)),
+      start_year = min(year[!is.na(value)]),
+      end_year = max(year[!is.na(value)]),
+      .groups = "drop"
+    )
+  
+  # Merge stats and calculate a fixed y-position (90% of max value)
+  df_long <- df_long %>%
+    left_join(stats, by = "variable") %>%
+    group_by(variable) %>%
+    mutate(y_pos = max(value, na.rm = TRUE) * 0.9) %>%
+    ungroup()
+  
+  return(df_long)
+}
+
+# Prepare biotic and abiotic p
+biotic_p <- prepare_p(p, biotic_vars)
+abiotic_p <- prepare_p(p, abiotic_vars)
+
+# Plot biotic variables
+p_biotic <- ggplot(biotic_p, aes(x = X, y = value)) +
+  geom_line(color = "steelblue") +
+  facet_wrap(~variable, scales = "free_y") +
+  geom_text(
+    aes(
+      x = max(X, na.rm = TRUE),
+      y = y_pos,
+      label = paste0("NAs: ", n_NA, "\nObs: ", n_obs, "\nYears: ", start_year, "-", end_year)
+    ),
+    hjust = 1, vjust = 1, size = 3, inherit.aes = FALSE
+  ) +
+  labs(x = "Time", y = "Value")
+
+#
+# Print plots
+p_biotic
+
+```
+
+```{r plot_abiotic}
+
+p_abiotic <- ggplot(abiotic_p, aes(x = X, y = value)) +
+  geom_line(color = "darkorange") +
+  facet_wrap(~variable, scales = "free_y") +
+  geom_text(
+    aes(
+      x = max(X, na.rm = TRUE),
+      y = y_pos,
+      label = paste0("NAs: ", n_NA, "\nObs: ", n_obs, "\nYears: ", start_year, "-", end_year)
+    ),
+    hjust = 1, vjust = 1, size = 3, inherit.aes = FALSE
+  ) +
+  theme_minimal() +
+  labs(x = "Time", y = "Value")
+
+p_abiotic
+```
+
+## Model plankton network
+
+## Model emergent properties
+
+If `E` and `tau` are supplied, the model uses the E/tau Method. If using the E/tau Method and multiple variables are listed under `x`, `fitGP` uses 𝐸 lags with spacing 𝜏 of *each* variable. If `E` and `tau` are omitted, the function will use the Custom Lags Method, using all the variables in `x` as predictors.
+
+```{r fit_GPEDM}
+
+m0 <- fitGP(data = df, 
+            
+            
+                  time = "Time",
+                   
+                  y = "connectance", x = c("nitrogen", "phosphorus", "temperature"),
+                   
+                   E = 1, tau = 1,
+                   
+                  predictmethod = "loo", exclradius = 6)
+
+
+```
+
+## Conditional effects
+
+```{r}
+
+con = getconditionals(m0)
+
+```
+
+Predictions:
+
+```{r}
+plot(m0)
+```
