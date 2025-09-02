@@ -1,6 +1,8 @@
 ---
-title: "Simulate"
-author: "Leonardo Capitani"
+title: "Registered Report notebook: simulate"
+author: 
+- name: Leonardo Capitani 
+  email: leonardo.capitani@eawag.ch
 date: "09/01/2025"
 date-modified: last-modified
 execute:
@@ -21,7 +23,48 @@ editor: visual
 editor_options: 
   chunk_output_type: console
 output-dir: docs
+bibliography: references.bib
+csl: eco_lett.csl
 ---
+
+## Intro
+
+I made this notebook to visualize how we are going to answer the research questions of the research project: Inferring and predicting plankton networks emergent properties in changing lakes.
+
+::: {.callout-note appearance="minimal"}
+**Research questions:**
+
+1.  How do temperature, phosphorus and nitrogen levels have caused network emergent properties to vary?
+
+2.  How do invasive species presence/abundance have influenced network emergent properties?
+
+3.  How will plankton network emergent properties change in the near future (next 5-10 years)?
+:::
+
+::: {.callout-important appearance="minimal"}
+**Plankton emergent properties**
+
+-   Connectance (C): percentage of associations between network nodes. Defined by [@merz2023] as: $C = 100 \times \frac{L}{N(N - 1)}$, where $L$ is the number of interactions between nodes and $N$ is the number of nodes in the system;
+
+-   Modularity (M): the strength of division of a network into modules. Modularity is a network property that describes the tendency of nodes to cluster. Networks with high modularity have dense connections among nodes within modules but sparse connections to nodes in other modules [@gilarranz2017]. In order to calculate network modularity, we have to find a network partition into modules that maximize the value of modularity. A partition is just a method of assigning nodes into modules. This partition is the one that groups the nodes in a way in which the fraction of links between modules is minimal when compared with the fraction of links inside modules. We define the partition as [@guimerà2005] did:
+
+    $$
+    M \equiv \sum_{s=1}^{N_M} 
+    \left[ 
+    \frac{l_s}{L} - \left( \frac{d_s}{2L} \right)^2 
+    \right]
+    \tag{1}
+    $$
+
+    Where:
+
+    -   $N_M$ is the number of modules\
+    -   $L$ is the number of links in the entire component\
+    -   $l_s$ is the number of links between nodes that belong to module $s$\
+    -   $d_s$ is the sum of the degrees of the nodes that belong to module $s$
+
+-   Stability: we define the network stability as the volume contraction rate (VCR) of a non-equilibrium dynamical system [@cenci2019]. We will measure the VCR using the trace of the Jacobian species interaction matrix (sum of the first diagonal). The network stability metric we are proposing combines and summarises species interdependencies (biotic interactions) and single-species sensitivities to environmental change (intrinsic growth). The smaller the VCR, the larger the network stability.
+:::
 
 ## Load libraries
 
@@ -256,3 +299,5 @@ Predictions:
 ```{r}
 plot(m0)
 ```
+
+## References

@@ -2,9 +2,9 @@
 
 In this research project we aim to answer this open questions: 
 
-1. To what extent do temperature, phosphorus and nitrogen levels have caused network emergent properties to vary?
+1. How do temperature, phosphorus and nitrogen levels have caused network emergent properties to vary?
 
-2. How does invasive species presence/abundance have  influenced network emergent properties?
+2. How do invasive species presence/abundance have  influenced network emergent properties?
 
 3. How will plankton network emergent properties change in the near future (next 5-10 years)? 
 
