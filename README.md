@@ -22,9 +22,9 @@ Climate change, nutrient fluctuations and species invasions are fundamentally al
 
 ## Collaborators
 
-- Dr. Stephan Munch (smunch@ucsc.edu)
-- Dr. Tanya Rogers (tanya.rogers@noaa.gov)
-- Dr. Cheng-Han Tsai (tsaich@gs.ncku.edu.tw)
+- Dr. Stephan Munch, Department of Applied Mathematics, University of California, USA & Southwest Fisheries Science Center, National Marine Fisheries Service, NOAA, Santa Cruz, USA (smunch@ucsc.edu)
+- Dr. Tanya Rogers, NOAA Southwest Fisheries Science Center (Fisheries Ecology Division), USA -  (tanya.rogers@noaa.gov)
+- Dr. Cheng-Han Tsai, Department of Life Sciences, National Cheng Kung University, Taiwan (tsaich@gs.ncku.edu.tw)
 - ... to be annunced
   
 ## Folder structure
