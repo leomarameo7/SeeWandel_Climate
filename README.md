@@ -1,6 +1,4 @@
-## Title 
-
-Inferring and predicting plankton networks emergent properties in changing lakes
+## Inferring and predicting plankton networks emergent properties in changing lakes
 
 In this research project we aim to answer this open questions: 
 
