@@ -9,6 +9,7 @@ execute:
   message: false
 format: 
       html:
+          css: styles.css
           toc: true
           code-fold: true
           code-tools: true
@@ -19,6 +20,7 @@ format:
 editor: visual
 editor_options: 
   chunk_output_type: console
+output-dir: docs
 ---
 
 ## Load libraries
@@ -88,7 +90,9 @@ df_long <- df %>%
 
 ```
 
-### Visualize data 
+### Visualize data
+
+#### Time vs emergent properties
 
 ```{r plot_emergent_properties}
 
@@ -107,13 +111,15 @@ p <- ggplot(df_long, aes(x = Time)) +
 
 p
 # save as PNG
-ggsave(here("results","figures","simulations","emergent_properties.png"), plot = p, width = 8, height = 6, dpi = 300)
+ggsave(here("outputs","figures","simulations","emergent_properties.png"), plot = p, width = 8, height = 6, dpi = 300)
 ```
+
+#### Heat maps
 
 ## Load lake Zurich data
 
 ```{r load_p}
-p <- read.csv( here("Data","Merz","lake_zurich.csv")) |>   mutate(X = row_number())
+p <- read.csv( here("data","data_raw","zurich","lake_zurich.csv")) |>   mutate(X = row_number())
 
 # change species names
 names(p)[names(p) == "Ci"] <- "Ciliates"

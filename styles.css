@@ -1,0 +1,3 @@
+.p-date::before {
+    content: "First published: ";
+}
